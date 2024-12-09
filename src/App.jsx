@@ -6,6 +6,7 @@ import Date_time from './Components/Date_time';
 import Password_generator from './Components/Password_generator';
 import BG_color from './Components/BG_color';
 import MovieApp from './Components/Movie_app';
+import ChatBox from './Components/ChatBox';
 
 function App() {
   const [selectoption, setSelectoption] = useState('');
@@ -101,6 +102,11 @@ function App() {
           <div className="bg-white dark:bg-gray-500 shadow-md rounded-lg p-6">
             <h2 className="text-lg font-semibold mb-4">MoviesMela</h2>
             <MovieApp/>
+          </div>
+
+          <div className="bg-white dark:bg-gray-500 shadow-md rounded-lg p-6">
+            <h2 className="text-lg font-semibold mb-4">Chat With Me</h2>
+            <ChatBox/>
           </div>
 
         </div>
