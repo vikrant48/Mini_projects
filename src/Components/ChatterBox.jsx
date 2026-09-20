@@ -1,19 +1,21 @@
-import React, { useState } from 'react'
+import React, { useState } from 'react';
 import axios from "axios";
-const API_KEY = import.meta.env.VITE_OPENAI_API_KEY || "";
 
+// 🔐 TEMPORARY HARDCODED API KEY — DO NOT USE IN PRODUCTION
+const API_KEY = import.meta.env.VITE_OPENAI_API_KEY || ""; // ⚠️ Replace with your key
 
-function ChatBox() {
+const ChatterBox = () => {
     const [messages, setMessages] = useState([]);
     const [input, setInput] = useState("");
     const [isLoading, setIsLoading] = useState(false);
 
-    // console.log("API Key:", API_KEY);
-
     const OPENAI_URL = "https://api.openai.com/v1/chat/completions";
 
-
     const fetchBotResponse = async (newMessages) => {
+        if (!API_KEY) {
+            throw new Error("API key not set.");
+        }
+
         try {
             const response = await axios.post(
                 OPENAI_URL,
@@ -33,13 +35,13 @@ function ChatBox() {
             );
             return response.data.choices[0].message.content.trim();
         } catch (error) {
-            console.error("Error fetching response from OpenAI:", error.response?.data || error.message);
-            throw new Error("Could not fetch response from OpenAI.");
+            console.error("OpenAI API Error:", error.response?.data || error.message);
+            throw new Error("API request failed.");
         }
     };
 
     const handleSendMessage = async () => {
-        if (!input.trim()) return;
+        if (!input.trim() || isLoading) return;
 
         const newMessages = [...messages, { user: "You", text: input }];
         setMessages(newMessages);
@@ -52,15 +54,16 @@ function ChatBox() {
         } catch (error) {
             setMessages([
                 ...newMessages,
-                { user: "Bot", text: "Sorry, something went wrong. Please try again later!" },
+                { user: "Bot", text: "❌ Error: Could not connect to AI service." },
             ]);
         } finally {
             setIsLoading(false);
         }
     };
 
-    const handleKeyPress = (e) => {
+    const handleKeyDown = (e) => {
         if (e.key === "Enter") {
+            e.preventDefault();
             handleSendMessage();
         }
     };
@@ -94,12 +97,12 @@ function ChatBox() {
                         placeholder="Type a message..."
                         value={input}
                         onChange={(e) => setInput(e.target.value)}
-                        onKeyPress={handleKeyPress}
+                        onKeyDown={handleKeyDown}
                     />
                     <button
                         className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600"
                         onClick={handleSendMessage}
-                        disabled={isLoading} // Prevent multiple requests while loading
+                        disabled={isLoading || !input.trim()}
                     >
                         {isLoading ? "Sending..." : "Send"}
                     </button>
@@ -107,6 +110,6 @@ function ChatBox() {
             </div>
         </div>
     );
-}
+};
 
-export default ChatBox
+export default ChatterBox;
